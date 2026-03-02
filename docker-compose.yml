@@ -1,0 +1,65 @@
+version: '3.8'
+
+services: 
+  itemservice: 
+    build: ./itemservice/itemservice
+    container_name: itemservice 
+    ports: 
+      - "8081:8081" 
+    networks: 
+      - microservices-net 
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8081/items"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
+  orderservice: 
+    build: ./orderservice/orderservice
+    container_name: orderservice 
+    ports: 
+      - "8082:8082" 
+    networks: 
+      - microservices-net 
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8082/orders"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
+  paymentservice: 
+    build: ./paymentservice/paymentservice
+    container_name: paymentservice 
+    ports: 
+      - "8083:8083" 
+    networks: 
+      - microservices-net 
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8083/payments"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+  
+  apigateway: 
+    build: ./apigateway/apigateway
+    container_name: apigateway 
+    ports: 
+      - "8080:8080" 
+    depends_on: 
+      itemservice:
+        condition: service_healthy
+      orderservice:
+        condition: service_healthy
+      paymentservice:
+        condition: service_healthy
+    networks: 
+      - microservices-net 
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+
+networks: 
+  microservices-net: 
+    driver: bridge

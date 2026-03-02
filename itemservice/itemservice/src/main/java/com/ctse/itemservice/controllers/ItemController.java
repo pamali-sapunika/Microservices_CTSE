@@ -1,0 +1,40 @@
+package com.ctse.itemservice.controllers;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/items")
+public class ItemController {
+
+    // Simple in-memory list (no database needed) 
+    private List<String> items = new ArrayList<>(List.of("Book", "Laptop", "Phone")); 
+  
+    @GetMapping 
+    public List<String> getItems() { 
+        return items; 
+    } 
+  
+    @PostMapping 
+    public ResponseEntity<String> addItem(@RequestBody String item) { 
+        items.add(item); 
+        return ResponseEntity.status(HttpStatus.CREATED).body("Item added: " + item); 
+    } 
+
+    @GetMapping("/{id}") 
+    public ResponseEntity<String> getItem(@PathVariable int id) { 
+        if (id < 0 || id >= items.size()) 
+            return ResponseEntity.notFound().build(); 
+        return ResponseEntity.ok(items.get(id)); 
+    } 
+
+}
